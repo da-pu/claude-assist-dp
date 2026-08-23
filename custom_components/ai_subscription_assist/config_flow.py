@@ -1289,7 +1289,7 @@ class ConversationSubentryFlowHandler(ConfigSubentryFlow):
         step_schema: VolDictType = {
             vol.Optional(
                 CONF_CHAT_MODEL,
-                default=DEFAULT[CONF_CHAT_MODEL],
+                default=self.options.get(CONF_CHAT_MODEL, DEFAULT[CONF_CHAT_MODEL]),
             ): SelectSelector(
                 SelectSelectorConfig(
                     options=await self._get_model_list(), custom_value=True
@@ -1297,11 +1297,11 @@ class ConversationSubentryFlowHandler(ConfigSubentryFlow):
             ),
             vol.Optional(
                 CONF_MAX_TOKENS,
-                default=DEFAULT[CONF_MAX_TOKENS],
+                default=self.options.get(CONF_MAX_TOKENS, DEFAULT[CONF_MAX_TOKENS]),
             ): int,
             vol.Optional(
                 CONF_TEMPERATURE,
-                default=DEFAULT[CONF_TEMPERATURE],
+                default=self.options.get(CONF_TEMPERATURE, DEFAULT[CONF_TEMPERATURE]),
             ): NumberSelector(NumberSelectorConfig(min=0, max=1, step=0.05)),
         }
 
@@ -1367,7 +1367,7 @@ class ConversationSubentryFlowHandler(ConfigSubentryFlow):
         ):
             step_schema[
                 vol.Optional(
-                    CONF_THINKING_BUDGET, default=DEFAULT[CONF_THINKING_BUDGET]
+                    CONF_THINKING_BUDGET, default=self.options.get(CONF_THINKING_BUDGET, DEFAULT[CONF_THINKING_BUDGET])
                 )
             ] = vol.All(
                 NumberSelector(
@@ -1385,7 +1385,7 @@ class ConversationSubentryFlowHandler(ConfigSubentryFlow):
             step_schema[
                 vol.Optional(
                     CONF_THINKING_EFFORT,
-                    default=DEFAULT[CONF_THINKING_EFFORT],
+                    default=self.options.get(CONF_THINKING_EFFORT, DEFAULT[CONF_THINKING_EFFORT]),
                 )
             ] = SelectSelector(
                 SelectSelectorConfig(
@@ -1402,15 +1402,15 @@ class ConversationSubentryFlowHandler(ConfigSubentryFlow):
                 {
                     vol.Optional(
                         CONF_WEB_SEARCH,
-                        default=DEFAULT[CONF_WEB_SEARCH],
+                        default=self.options.get(CONF_WEB_SEARCH, DEFAULT[CONF_WEB_SEARCH]),
                     ): bool,
                     vol.Optional(
                         CONF_WEB_SEARCH_MAX_USES,
-                        default=DEFAULT[CONF_WEB_SEARCH_MAX_USES],
+                        default=self.options.get(CONF_WEB_SEARCH_MAX_USES, DEFAULT[CONF_WEB_SEARCH_MAX_USES]),
                     ): int,
                     vol.Optional(
                         CONF_WEB_SEARCH_USER_LOCATION,
-                        default=DEFAULT[CONF_WEB_SEARCH_USER_LOCATION],
+                        default=self.options.get(CONF_WEB_SEARCH_USER_LOCATION, DEFAULT[CONF_WEB_SEARCH_USER_LOCATION]),
                     ): bool,
                 }
             )
@@ -1519,14 +1519,10 @@ class ConversationSubentryFlowHandler(ConfigSubentryFlow):
             ]
 
         try:
-            client = anthropic.AsyncAnthropic(
-                auth_token=entry.data[CONF_ACCESS_TOKEN],
-                http_client=get_async_client(self.hass),
-                default_headers={
-                    "anthropic-beta": OAUTH_BETA_FLAGS,
-                    "user-agent": "claude-cli/2.1.2 (external, cli)",
-                    "x-app": "cli",
-                },
+            from . import async_create_client  # noqa: PLC0415
+
+            client = await async_create_client(
+                self.hass, entry.data[CONF_ACCESS_TOKEN]
             )
             models = await get_model_list(client)
             if models:
@@ -1557,14 +1553,10 @@ class ConversationSubentryFlowHandler(ConfigSubentryFlow):
         zone_home = self.hass.states.get(ENTITY_ID_HOME)
         if zone_home is not None:
             entry = self._get_entry()
-            client = anthropic.AsyncAnthropic(
-                auth_token=entry.data[CONF_ACCESS_TOKEN],
-                http_client=get_async_client(self.hass),
-                default_headers={
-                    "anthropic-beta": OAUTH_BETA_FLAGS,
-                    "user-agent": "claude-cli/2.1.2 (external, cli)",
-                    "x-app": "cli",
-                },
+            from . import async_create_client  # noqa: PLC0415
+
+            client = await async_create_client(
+                self.hass, entry.data[CONF_ACCESS_TOKEN]
             )
             location_schema = vol.Schema(
                 {
