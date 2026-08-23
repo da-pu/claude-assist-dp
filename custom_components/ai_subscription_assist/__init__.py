@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 import datetime
+import functools
 import json
 import urllib.parse
 import time
@@ -348,6 +349,13 @@ def _create_client(hass: HomeAssistant, access_token: str) -> anthropic.AsyncCli
 
     Mimics Claude Code's headers exactly — OAuth tokens require specific
     beta flags and headers to be accepted by the Anthropic API.
+
+    NOTE: this constructor touches the filesystem. With ``api_key=None`` the
+    Anthropic SDK falls back to its on-disk credential lookup and reads
+    ``~/.config/anthropic/active_config``, which Home Assistant flags as a
+    blocking call when done inside the event loop. Always reach for
+    :func:`async_create_client` from async code instead of calling this
+    directly.
     """
     return anthropic.AsyncAnthropic(
         api_key=None,
@@ -358,6 +366,15 @@ def _create_client(hass: HomeAssistant, access_token: str) -> anthropic.AsyncCli
             "user-agent": "claude-cli/2.1.2 (external, cli)",
             "x-app": "cli",
         },
+    )
+
+
+async def async_create_client(
+    hass: HomeAssistant, access_token: str
+) -> anthropic.AsyncClient:
+    """Create the Anthropic client without blocking the event loop."""
+    return await hass.async_add_executor_job(
+        functools.partial(_create_client, hass, access_token)
     )
 
 
@@ -496,7 +513,7 @@ async def async_setup_entry(
             if not access_token:
                 raise ConfigEntryNotReady("Failed to refresh OAuth token")
 
-        client = _create_client(hass, access_token)
+        client = await async_create_client(hass, access_token)
 
         # Validate the token works
         try:
@@ -507,7 +524,7 @@ async def async_setup_entry(
             access_token = await _async_refresh_token(hass, entry)
             if not access_token:
                 return False
-            client = _create_client(hass, access_token)
+            client = await async_create_client(hass, access_token)
             try:
                 await _async_validate_oauth_client(client)
             except anthropic.AuthenticationError as err2:
@@ -554,7 +571,7 @@ async def async_setup_entry(
             """Periodically refresh the OAuth token."""
             new_token = await _async_refresh_token(hass, entry)
             if new_token:
-                entry.runtime_data = _create_client(hass, new_token)
+                entry.runtime_data = await async_create_client(hass, new_token)
 
         entry.async_on_unload(
             async_track_time_interval(
