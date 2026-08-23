@@ -1,0 +1,169 @@
+{
+  "config": {
+    "error": {
+      "authentication_error": "Nieprawidłowa autoryzacja. Zaloguj się ponownie.",
+      "cannot_connect": "Nie udało się połączyć z dostawcą.",
+      "timeout_connect": "Przekroczono czas połączenia z dostawcą.",
+      "unknown": "Nieoczekiwany błąd.",
+      "no_auth_code": "Wklej kod autoryzacyjny z adresu zwrotnego.",
+      "invalid_state": "Niezgodny stan OAuth. Zacznij od nowa.",
+      "flow_expired": "Sesja konfiguracji wygasła. Zacznij od nowa.",
+      "google_project_required": "To konto Google wymaga ID projektu Cloud. Ustaw projekt i zaloguj się ponownie.",
+      "token_exchange_failed": "Nie udało się wymienić kodu na token — kod mógł wygasnąć. Spróbuj ponownie."
+    },
+    "step": {
+      "user": {
+        "title": "Wybierz dostawcę",
+        "description": "Wybierz, z jakiego konta ma korzystać ta konfiguracja.",
+        "menu_options": {
+          "claude_oauth": "Claude Pro/Max",
+          "openai_codex": "ChatGPT Plus/Pro/Business/Enterprise (Codex)",
+          "gemini_cli": "Google AI Pro (Gemini)",
+          "openai": "OpenAI / compatible (API key)"
+        },
+        "data": {
+          "provider": "Dostawca"
+        }
+      },
+      "claude_oauth": {
+        "title": "Zaloguj się do Claude Pro / Max",
+        "description": "Zaloguj się kontem **Claude Pro** lub **Max** (albo miejscem **Team/Enterprise**), aby autoryzować Home Assistant.\n\n1. [Kliknij, aby się zalogować]({auth_url})\n2. Zaloguj się i zatwierdź dostęp\n3. Zobaczysz stronę z kodem autoryzacyjnym\n4. Skopiuj kod i wklej poniżej\n\n**Adres zwrotny:** `{redirect_uri}`",
+        "data": {
+          "name": "Nazwa",
+          "auth_code": "Kod autoryzacyjny"
+        }
+      },
+      "openai": {
+        "title": "Konfiguracja OpenAI / kompatybilne",
+        "description": "Podaj klucz API OpenAI (lub serwera zgodnego z OpenAI) i opcjonalnie własny adres bazowy.",
+        "data": {
+          "name": "Nazwa",
+          "openai_api_key": "Klucz API",
+          "openai_base_url": "Adres bazowy"
+        }
+      },
+      "openai_codex": {
+        "title": "Zaloguj się do ChatGPT Plus / Pro (Codex)",
+        "description": "Zaloguj się kontem **ChatGPT Plus/Pro/Business/Enterprise**.\n\n1. [Kliknij, aby się zalogować]({auth_url})\n2. Zaloguj się i zatwierdź\n3. Nastąpi przekierowanie na adres localhost, który może się nie wczytać\n4. Skopiuj cały adres (lub samą wartość `code=`)\n\n**Adres zwrotny:** `{redirect_uri}`",
+        "data": {
+          "name": "Nazwa",
+          "auth_code": "Adres zwrotny lub kod"
+        }
+      },
+      "gemini_cli": {
+        "title": "Zaloguj się do Google AI Pro",
+        "description": "Zaloguj się kontem Google, aby autoryzować **Google AI Pro**.\n\n1. [Kliknij, aby się zalogować]({auth_url})\n2. Zaloguj się i wyraź zgodę\n3. Nastąpi przekierowanie na adres localhost, który może się nie wczytać\n4. Skopiuj cały adres\n\n**Adres zwrotny:** `{redirect_uri}`",
+        "data": {
+          "name": "Nazwa",
+          "google_project_id": "ID projektu Google Cloud (opcjonalnie)",
+          "auth_code": "Adres zwrotny"
+        }
+      }
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Pamięć",
+        "description": "Ustawienia pamięci wspólne dla wszystkich agentów tej integracji.\n\n**Szybkość:** wyłączona pamięć = najkrótszy prompt i najszybsza odpowiedź. Do sterowania głosem pamięć zwykle nie jest potrzebna.\n\nPanel pamięci: `AI Assist Memory` (`/ai-subscription-assist-memory`)\n\nKomendy w czacie Assist: `/memory help`, `/memory status`, `/remember <tekst>`, `/memories <szukaj>`, `/forget <id>`, `/new` (nowa rozmowa).",
+        "data": {
+          "memory_enabled": "Włącz pamięć",
+          "memory_auto_write": "Automatycznie zapamiętuj („zapamiętaj, że…”)",
+          "memory_auto_recall": "Automatycznie przypominaj pamięć w promptach",
+          "memory_resume_enabled": "Wznawiaj rozmowę po ponownym otwarciu Assist",
+          "memory_ttl_days": "Ile dni przechowywać wspomnienia",
+          "memory_max_items_per_scope": "Maks. wspomnień na zakres",
+          "memory_recall_top_k": "Maks. przypomnień na turę",
+          "memory_resume_max_messages": "Maks. wiadomości do wznowienia"
+        },
+        "data_description": {
+          "memory_enabled": "Główny wyłącznik pamięci długoterminowej i komend /memory.",
+          "memory_auto_write": "Wyłapuje zwroty typu „zapamiętaj, że…” i zapisuje je dla danego użytkownika.",
+          "memory_auto_recall": "Dokleja pasujące wspomnienia do promptu systemowego — wydłuża prompt i czas odpowiedzi.",
+          "memory_resume_enabled": "Zachowuje ostatni fragment rozmowy, aby dało się ją kontynuować.",
+          "memory_ttl_days": "Wspomnienia starsze niż tyle dni wygasają automatycznie.",
+          "memory_max_items_per_scope": "Limit wspomnień dla każdego zakresu (wspólnego i każdego użytkownika).",
+          "memory_recall_top_k": "Ile wspomnień maksymalnie trafia do jednej odpowiedzi. Mniej = szybciej.",
+          "memory_resume_max_messages": "Ile wiadomości zapamiętać do wznowienia rozmowy."
+        }
+      }
+    }
+  },
+  "config_subentries": {
+    "conversation": {
+      "abort": {
+        "entry_not_loaded": "Nie można dodać, dopóki konfiguracja jest wyłączona.",
+        "reconfigure_successful": "Ustawienia zapisane."
+      },
+      "entry_type": "Agent konwersacyjny",
+      "initiate_flow": {
+        "reconfigure": "Zmień ustawienia agenta",
+        "user": "Dodaj agenta konwersacyjnego"
+      },
+      "step": {
+        "advanced": {
+          "data": {
+            "chat_model": "Model",
+            "max_tokens": "Limit tokenów odpowiedzi",
+            "temperature": "Temperatura (losowość)"
+          },
+          "title": "Model i limity",
+          "description": "Wybór modelu decyduje o szybkości.\n\n- **Haiku** – najszybszy, najtańszy, słabszy w złożonych poleceniach\n- **Sonnet** – kompromis\n- **Opus** – najdokładniejszy, najwolniejszy\n\nLimit tokenów trzymaj nisko (2000–3000) – model kończy szybciej.",
+          "data_description": {
+            "chat_model": "Identyfikator modelu, np. `claude-opus-5`, `claude-sonnet-5`, `claude-haiku-4-5`. Bez sufiksu `-0`.",
+            "max_tokens": "Górny limit długości odpowiedzi. Niższy = szybciej. Do sterowania głosem wystarczy 2000–3000.",
+            "temperature": "0 = przewidywalnie i powtarzalnie (zalecane do sterowania domem), 1 = kreatywnie."
+          }
+        },
+        "init": {
+          "description": "Model i dostęp do narzędzi dla tego agenta.\n\n**Szybkość:** im mniej narzędzi włączysz, tym krótszy prompt i szybsza odpowiedź. Do sterowania domem wystarczy **Sterowanie Home Assistant = assist**.\nHistoria/wykresy: włącz `get_history`, `get_logbook`, `get_statistics` (spowalnia).",
+          "data": {
+            "enabled_tools": "Dodatkowe narzędzia (każde spowalnia)",
+            "llm_hass_api": "Sterowanie Home Assistant",
+            "name": "Nazwa",
+            "prompt": "Instrukcje (prompt systemowy)",
+            "recommended": "Ustawienia zalecane (proste)",
+            "yolo_mode": "Tryb YOLO (bez zabezpieczeń)"
+          },
+          "data_description": {
+            "enabled_tools": "Każde włączone narzędzie wydłuża prompt i czas odpowiedzi. Włączaj tylko potrzebne.",
+            "llm_hass_api": "„assist” daje agentowi sterowanie encjami udostępnionymi do Assist. Bez tego agent tylko rozmawia.",
+            "prompt": "Krótki prompt = szybsza odpowiedź. Można używać szablonów Jinja.",
+            "recommended": "Włączone: gotowe ustawienia. Wyłącz, aby ręcznie wybrać model, tokeny i myślenie.",
+            "yolo_mode": "Wyłącza zabezpieczenia i odblokowuje edycję dashboardów/automatyzacji oraz logi. Tylko dla zaufanych agentów."
+          },
+          "title": "Podstawy"
+        },
+        "model": {
+          "data": {
+            "thinking_budget": "Budżet myślenia (tokeny)",
+            "thinking_effort": "Poziom myślenia",
+            "user_location": "Dodaj lokalizację domu",
+            "web_search": "Wyszukiwanie w internecie",
+            "web_search_max_uses": "Maks. liczba wyszukiwań"
+          },
+          "data_description": {
+            "thinking_budget": "Tylko dla starszych modeli. 0 = bez myślenia (najszybciej). Wartości od 1024 włączają rozszerzone myślenie i wyraźnie wydłużają odpowiedź.",
+            "thinking_effort": "Ile model „myśli” przed odpowiedzią. `none`/`low` = najszybciej i wystarcza do poleceń domowych. `medium`/`high` dodają sekundy.",
+            "user_location": "Wyniki wyszukiwania dopasowane do lokalizacji domu.",
+            "web_search": "Pozwala sięgnąć po aktualne informacje z sieci. Każde wyszukanie to dodatkowe kilka sekund.",
+            "web_search_max_uses": "Twardy limit wyszukiwań na jedną odpowiedź. Trzymaj 1–2."
+          },
+          "title": "Myślenie i internet",
+          "description": "Te opcje najmocniej wpływają na czas odpowiedzi.\n\nDo sterowania głosem: **Poziom myślenia = niski** (lub żaden) i **wyszukiwanie w internecie wyłączone**, chyba że agent ma odpowiadać na pytania o świat."
+        }
+      }
+    }
+  },
+  "selector": {
+    "thinking_effort": {
+      "options": {
+        "none": "Żaden (najszybciej)",
+        "low": "Niski",
+        "medium": "Średni",
+        "high": "Wysoki",
+        "max": "Maksymalny (najwolniej)"
+      }
+    }
+  }
+}
